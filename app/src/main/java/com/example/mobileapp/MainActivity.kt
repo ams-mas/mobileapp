@@ -28,12 +28,16 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +54,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
+import android.widget.Toast
+import com.example.mobileapp.data.local.entity.PropertyEntity
+import kotlinx.coroutines.launch
 
 private val AppBlue = Color(0xFF1756A9)
 private val DeepBlue = Color(0xFF103B70)
@@ -258,24 +268,203 @@ private fun RealEstateDashboard() {
     }
 
     selectedItem?.let { title ->
-        AlertDialog(
-            onDismissRequest = { selectedItem = null },
-            title = { Text(text = title, textAlign = TextAlign.Start) },
-            text = {
-                Text(
-                    text = "صفحه این بخش در مرحله بعدی ساخته می‌شود.",
-                    textAlign = TextAlign.Start,
-                    lineHeight = 25.sp
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = { selectedItem = null }) {
-                    Text("متوجه شدم")
-                }
-            },
-            containerColor = Color.White
-        )
+        if (title == "ثبت ملک") {
+            PropertyRegistrationDialog(onDismiss = { selectedItem = null })
+        } else {
+            AlertDialog(
+                onDismissRequest = { selectedItem = null },
+                title = { Text(text = title, textAlign = TextAlign.Start) },
+                text = {
+                    Text(
+                        text = "صفحه این بخش در مرحله بعدی ساخته می‌شود.",
+                        textAlign = TextAlign.Start,
+                        lineHeight = 25.sp
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = { selectedItem = null }) {
+                        Text("متوجه شدم")
+                    }
+                },
+                containerColor = Color.White
+            )
+        }
     }
+}
+
+@Composable
+private fun PropertyRegistrationDialog(onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var title by rememberSaveable { mutableStateOf("") }
+    var propertyType by rememberSaveable { mutableStateOf("خانه") }
+    var listingType by rememberSaveable { mutableStateOf("فروش") }
+    var province by rememberSaveable { mutableStateOf("") }
+    var district by rememberSaveable { mutableStateOf("") }
+    var address by rememberSaveable { mutableStateOf("") }
+    var price by rememberSaveable { mutableStateOf("") }
+    var currency by rememberSaveable { mutableStateOf("AFN") }
+    var bedrooms by rememberSaveable { mutableStateOf("") }
+    var bathrooms by rememberSaveable { mutableStateOf("") }
+    var area by rememberSaveable { mutableStateOf("") }
+    var description by rememberSaveable { mutableStateOf("") }
+    var saving by rememberSaveable { mutableStateOf(false) }
+    var error by rememberSaveable { mutableStateOf<String?>(null) }
+
+    AlertDialog(
+        onDismissRequest = { if (!saving) onDismiss() },
+        title = {
+            Text("ثبت ملک جدید", color = DeepBlue, fontWeight = FontWeight.Bold)
+        },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(520.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text("مشخصات اصلی", color = AppBlue, fontWeight = FontWeight.Bold)
+                OutlinedTextField(
+                    value = title, onValueChange = { title = it },
+                    label = { Text("عنوان ملک *") },
+                    placeholder = { Text("مثلاً خانه دو منزله") },
+                    modifier = Modifier.fillMaxWidth(), singleLine = true
+                )
+                OutlinedTextField(
+                    value = propertyType, onValueChange = { propertyType = it },
+                    label = { Text("نوع ملک *") },
+                    placeholder = { Text("خانه، آپارتمان، زمین، دوکان") },
+                    modifier = Modifier.fillMaxWidth(), singleLine = true
+                )
+                OutlinedTextField(
+                    value = listingType, onValueChange = { listingType = it },
+                    label = { Text("نوع معامله *") },
+                    placeholder = { Text("فروش، کرایه، گروی") },
+                    modifier = Modifier.fillMaxWidth(), singleLine = true
+                )
+                Text("موقعیت ملک", color = AppBlue, fontWeight = FontWeight.Bold)
+                OutlinedTextField(
+                    value = province, onValueChange = { province = it },
+                    label = { Text("ولایت *") },
+                    modifier = Modifier.fillMaxWidth(), singleLine = true
+                )
+                OutlinedTextField(
+                    value = district, onValueChange = { district = it },
+                    label = { Text("ناحیه / ولسوالی") },
+                    modifier = Modifier.fillMaxWidth(), singleLine = true
+                )
+                OutlinedTextField(
+                    value = address, onValueChange = { address = it },
+                    label = { Text("آدرس مکمل") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text("قیمت و اندازه", color = AppBlue, fontWeight = FontWeight.Bold)
+                OutlinedTextField(
+                    value = price, onValueChange = { price = it.filter { ch -> ch.isDigit() } },
+                    label = { Text("قیمت *") },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true
+                )
+                OutlinedTextField(
+                    value = currency, onValueChange = { currency = it.uppercase().take(3) },
+                    label = { Text("واحد پول (AFN / USD / PKR)") },
+                    modifier = Modifier.fillMaxWidth(), singleLine = true
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = bedrooms, onValueChange = { bedrooms = it.filter { ch -> ch.isDigit() } },
+                        label = { Text("اتاق خواب") }, modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = bathrooms, onValueChange = { bathrooms = it.filter { ch -> ch.isDigit() } },
+                        label = { Text("حمام") }, modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true
+                    )
+                }
+                OutlinedTextField(
+                    value = area,
+                    onValueChange = { area = it.filter { ch -> ch.isDigit() || ch == '.' } },
+                    label = { Text("مساحت (متر مربع)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    singleLine = true
+                )
+                OutlinedTextField(
+                    value = description, onValueChange = { description = it },
+                    label = { Text("توضیحات و امکانات") },
+                    modifier = Modifier.fillMaxWidth(), minLines = 3
+                )
+                error?.let { Text(it, color = Color(0xFFB3261E), fontSize = 13.sp) }
+                Text(
+                    "کد ملک پس از اتصال به سیستم اصلی از طرف سرور ساخته می‌شود.",
+                    color = TextMuted, fontSize = 12.sp, lineHeight = 18.sp
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                enabled = !saving,
+                onClick = {
+                    val parsedPrice = price.toLongOrNull()
+                    when {
+                        title.isBlank() -> error = "لطفاً عنوان ملک را وارد کنید."
+                        propertyType.isBlank() -> error = "لطفاً نوع ملک را وارد کنید."
+                        listingType.isBlank() -> error = "لطفاً نوع معامله را وارد کنید."
+                        province.isBlank() -> error = "لطفاً ولایت را وارد کنید."
+                        parsedPrice == null || parsedPrice < 0 -> error = "لطفاً قیمت معتبر وارد کنید."
+                        currency !in listOf("AFN", "USD", "PKR") -> error = "واحد پول باید AFN، USD یا PKR باشد."
+                        else -> {
+                            error = null
+                            saving = true
+                            scope.launch {
+                                try {
+                                    val app = context.applicationContext as RealEstateApplication
+                                    app.localDatabase.propertyDao().upsert(
+                                        PropertyEntity(
+                                            title = title.trim(),
+                                            propertyType = propertyType.trim(),
+                                            listingType = listingType.trim(),
+                                            province = province.trim(),
+                                            district = district.trim(),
+                                            address = address.trim(),
+                                            price = parsedPrice,
+                                            currency = currency,
+                                            bedrooms = bedrooms.toIntOrNull(),
+                                            bathrooms = bathrooms.toIntOrNull(),
+                                            areaSquareMeters = area.toDoubleOrNull(),
+                                            description = description.trim(),
+                                            status = "available",
+                                            syncState = "pending"
+                                        )
+                                    )
+                                    Toast.makeText(context, "ملک در همین دستگاه ذخیره شد.", Toast.LENGTH_LONG).show()
+                                    onDismiss()
+                                } catch (e: Exception) {
+                                    saving = false
+                                    error = "ذخیره ملک انجام نشد. لطفاً دوباره تلاش کنید."
+                                }
+                            }
+                        }
+                    }
+                }
+            ) {
+                if (saving) {
+                    CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                Text(if (saving) "در حال ذخیره..." else "ذخیره ملک")
+            }
+        },
+        dismissButton = {
+            TextButton(enabled = !saving, onClick = onDismiss) { Text("انصراف") }
+        },
+        containerColor = Color.White
+    )
 }
 
 @Composable
