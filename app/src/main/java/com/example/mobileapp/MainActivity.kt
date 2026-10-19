@@ -182,22 +182,18 @@ private fun RealEstateDashboard() {
             )
             Spacer(modifier = Modifier.height(13.dp))
 
-            Row(
+            androidx.compose.foundation.layout.FlowRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                maxItemsInEachRow = 3,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                DashboardMenuCard(items[0], Modifier.weight(1f)) { selectedItem = items[0].title }
-                DashboardMenuCard(items[1], Modifier.weight(1f)) { selectedItem = items[1].title }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                DashboardMenuCard(items[2], Modifier.weight(1f)) { selectedItem = items[2].title }
-                DashboardMenuCard(items[3], Modifier.weight(1f)) { selectedItem = items[3].title }
+                items.forEach { item ->
+                    DashboardMenuCard(
+                        item,
+                        Modifier.weight(1f)
+                    ) { selectedItem = item.title }
+                }
             }
 
             Spacer(modifier = Modifier.height(22.dp))
@@ -275,7 +271,7 @@ private fun DashboardMenuCard(
 ) {
     Card(
         onClick = onClick,
-        modifier = modifier.height(126.dp),
+        modifier = modifier.height(112.dp),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
