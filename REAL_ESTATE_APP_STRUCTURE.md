@@ -33,9 +33,9 @@ This repository is the Android client for the Afghanistan real estate management
 
 ## Folder guide
 - `core/`: shared navigation, networking, security helpers, notifications, and theme.
-- `data/local/`: local preferences/cache only; never store secrets.
+- `data/local/`: Room/SQLite database, entities and DAOs for offline properties, customers, inquiries and appointments; never store secrets.
 - `data/remote/`: API service definitions and request/response DTOs.
-- `data/repository/`: implementations that coordinate remote/local data.
+- `data/repository/`: implementations that coordinate remote/local data. Property and customer repositories currently save local edits with `syncState = pending`.
 - `domain/model/`: app business models.
 - `domain/repository/`: repository interfaces.
 - `domain/usecase/`: business actions shared by screens.
@@ -50,6 +50,14 @@ This repository is the Android client for the Afghanistan real estate management
 - Ask for notification/SMS consent and respect opt-outs.
 - Do not implement online payments.
 - Do not trust a property code supplied by the app; the server generates it.
+
+## Local database currently added
+- Room database file name: `real_estate_local.db`.
+- Tables: `properties`, `customers`, `inquiries`, and `appointments`.
+- DAOs expose Flow queries for lists/search and methods for local inserts/updates.
+- Unsynced edits are marked `pending`; server-generated property codes remain nullable until the backend returns them.
+- The database is device-local and is not automatically shared with the PHP/MySQL website.
+- API synchronization is not yet active. Implement it only after the PHP API routes, authentication, and conflict rules are known. Do not mark records as synced until the server confirms success.
 
 ## Implementation order
 1. Confirm the existing PHP backend API and authentication format.
