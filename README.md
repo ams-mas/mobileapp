@@ -1,21 +1,26 @@
-# MobileApp
+# مدیریت املاک
 
-Native Android application built with Kotlin and Jetpack Compose.
+اپلیکیشن اندروید برای سیستم مدیریت املاک و رهنمای معاملات افغانستان.
 
-## Requirements
-- Android Studio (current stable)
-- JDK 17
-- Android SDK Platform 35 or newer
+## فناوری
+- Kotlin و Jetpack Compose
+- طراحی راست‌به‌چپ (RTL)
+- متن‌ها و منوهای فارسی
+- ارتباط آینده با API امن PHP از طریق HTTPS؛ اتصال مستقیم اپلیکیشن به MySQL ممنوع است.
 
-## Open the project
-1. Clone this repository.
-2. Open the repository folder in Android Studio.
-3. Allow Gradle to sync.
-4. Select an emulator or Android phone and press **Run**.
+## اجرای پروژه
+1. پروژه را در Android Studio باز کنید.
+2. منتظر همگام‌سازی Gradle بمانید.
+3. یک شبیه‌ساز اندروید بسازید یا موبایل را وصل کنید.
+4. پیکربندی `app` را انتخاب کرده و روی دکمه Run کلیک کنید.
 
-## Current features
-- Simple home screen with app icon and title.
-- Text input field.
-- Live preview of the text as you type.
+## منوی فعلی
+- ثبت ملک
+- فروش ملک
+- درخواست کرایه
+- ملک برای کرایه
 
-Package name: `com.example.mobileapp`.
+کارت‌های داشبورد در حال حاضر نمای اولیه رابط کاربری هستند. صفحه‌های ثبت و مدیریت اطلاعات و اتصال به API هنوز باید ساخته شوند.
+
+## ساختار و طرح معماری
+برای توضیح بخش‌های پیشنهادی، فایل `REAL_ESTATE_APP_STRUCTURE.md` را ببینید.
