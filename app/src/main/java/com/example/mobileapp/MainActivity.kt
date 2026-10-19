@@ -312,6 +312,16 @@ private fun PropertyRegistrationDialog(onDismiss: () -> Unit) {
     var saving by rememberSaveable { mutableStateOf(false) }
     var error by rememberSaveable { mutableStateOf<String?>(null) }
 
+    fun normalizeDigits(value: String): String = value
+        .replace('۰', '0').replace('۱', '1').replace('۲', '2')
+        .replace('۳', '3').replace('۴', '4').replace('۵', '5')
+        .replace('۶', '6').replace('۷', '7').replace('۸', '8')
+        .replace('۹', '9')
+        .replace('٠', '0').replace('١', '1').replace('٢', '2')
+        .replace('٣', '3').replace('٤', '4').replace('٥', '5')
+        .replace('٦', '6').replace('٧', '7').replace('٨', '8')
+        .replace('٩', '9')
+
     AlertDialog(
         onDismissRequest = { if (!saving) onDismiss() },
         title = {
@@ -365,7 +375,7 @@ private fun PropertyRegistrationDialog(onDismiss: () -> Unit) {
                     value = price, onValueChange = { price = it.filter { ch -> ch.isDigit() } },
                     label = { Text("قیمت *") },
                     modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                     singleLine = true
                 )
                 OutlinedTextField(
@@ -389,10 +399,10 @@ private fun PropertyRegistrationDialog(onDismiss: () -> Unit) {
                 }
                 OutlinedTextField(
                     value = area,
-                    onValueChange = { area = it.filter { ch -> ch.isDigit() || ch == '.' } },
+                    onValueChange = { area = it.filter { ch -> ch.isDigit() || ch == '.' || ch == '٫' || ch == ',' } },
                     label = { Text("مساحت (متر مربع)") },
                     modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                     singleLine = true
                 )
                 OutlinedTextField(
@@ -411,7 +421,7 @@ private fun PropertyRegistrationDialog(onDismiss: () -> Unit) {
             Button(
                 enabled = !saving,
                 onClick = {
-                    val parsedPrice = price.toLongOrNull()
+                    val parsedPrice = normalizeDigits(price).toLongOrNull()
                     when {
                         title.isBlank() -> error = "لطفاً عنوان ملک را وارد کنید."
                         propertyType.isBlank() -> error = "لطفاً نوع ملک را وارد کنید."
@@ -435,9 +445,9 @@ private fun PropertyRegistrationDialog(onDismiss: () -> Unit) {
                                             address = address.trim(),
                                             price = parsedPrice,
                                             currency = currency,
-                                            bedrooms = bedrooms.toIntOrNull(),
-                                            bathrooms = bathrooms.toIntOrNull(),
-                                            areaSquareMeters = area.toDoubleOrNull(),
+                                            bedrooms = normalizeDigits(bedrooms).toIntOrNull(),
+                                            bathrooms = normalizeDigits(bathrooms).toIntOrNull(),
+                                            areaSquareMeters = normalizeDigits(area.replace('٫', '.').replace(',', '.')).toDoubleOrNull(),
                                             description = description.trim(),
                                             status = "available",
                                             syncState = "pending"
