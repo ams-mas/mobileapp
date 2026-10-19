@@ -18,7 +18,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddHome
 import androidx.compose.material.icons.filled.HomeWork
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.NotificationsNone
@@ -99,7 +98,7 @@ private fun RealEstateDashboard() {
     var selectedItem by rememberSaveable { mutableStateOf<String?>(null) }
 
     val items = listOf(
-        DashboardItem("ثبت ملک", "ثبت مشخصات و قیمت ملک جدید", Icons.Default.AddHome, Color(0xFF1768AC), Color(0xFFE8F3FF)),
+        DashboardItem("ثبت ملک", "ثبت مشخصات و قیمت ملک جدید", Icons.Default.HomeWork, Color(0xFF1768AC), Color(0xFFE8F3FF)),
         DashboardItem("فروش ملک", "مشاهده و پیگیری املاک فروشی", Icons.Default.Sell, Color(0xFF21845A), Color(0xFFE7F7EF)),
         DashboardItem("درخواست کرایه", "ثبت درخواست متقاضیان کرایه", Icons.Default.Search, Color(0xFF8056B3), Color(0xFFF1EAFE)),
         DashboardItem("ملک برای کرایه", "ثبت و مشاهده املاک کرایی", Icons.Default.Key, Color(0xFFD17B22), Color(0xFFFFF1DF))
