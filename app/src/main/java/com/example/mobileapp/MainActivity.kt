@@ -385,8 +385,8 @@ private fun PropertyRegistrationPage(onBack: () -> Unit) {
                                                 "\nشماره تماس مالک: " + ownerPhone.trim() +
                                                 "\nنوع اسناد: " + documentType.trim() +
                                                 "\nتعداد مالکین: " + count +
-                                                "\nمشکل حقوقی: " + if (hasProblem) "بلی" else "نخیر" +
-                                                if (hasProblem) "\nشرح مشکل: " + problemDetails.trim() else "",
+                                                "\nمشکل حقوقی: " + (if (hasProblem) "بلی" else "نخیر") +
+                                                (if (hasProblem) "\nشرح مشکل: " + problemDetails.trim() else ""),
                                             status = "available",
                                             syncState = "pending"
                                         )
