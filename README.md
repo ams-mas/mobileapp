@@ -24,3 +24,8 @@
 
 ## ساختار و طرح معماری
 برای توضیح بخش‌های پیشنهادی، فایل `REAL_ESTATE_APP_STRUCTURE.md` را ببینید.
+
+## Local offline database
+Room/SQLite is configured for local storage on the Android device. The current local tables are properties, customers, inquiries, and appointments. Local edits are marked as pending for future synchronization. The PHP REST API connection is not yet implemented, so local records are not currently shared with the web system.
+
+See `REAL_ESTATE_APP_STRUCTURE.md` for the architecture and security rules.
