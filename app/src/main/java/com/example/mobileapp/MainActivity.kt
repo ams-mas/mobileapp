@@ -87,7 +87,6 @@ class MainActivity : ComponentActivity() {
 
 private data class DashboardItem(
     val title: String,
-    val description: String,
     val icon: ImageVector,
     val tint: Color,
     val pale: Color
@@ -98,10 +97,10 @@ private fun RealEstateDashboard() {
     var selectedItem by rememberSaveable { mutableStateOf<String?>(null) }
 
     val items = listOf(
-        DashboardItem("ثبت ملک", "ثبت مشخصات و قیمت ملک جدید", Icons.Default.HomeWork, Color(0xFF1768AC), Color(0xFFE8F3FF)),
-        DashboardItem("فروش ملک", "مشاهده و پیگیری املاک فروشی", Icons.Default.Sell, Color(0xFF21845A), Color(0xFFE7F7EF)),
-        DashboardItem("درخواست کرایه", "ثبت درخواست متقاضیان کرایه", Icons.Default.Search, Color(0xFF8056B3), Color(0xFFF1EAFE)),
-        DashboardItem("ملک برای کرایه", "ثبت و مشاهده املاک کرایی", Icons.Default.Key, Color(0xFFD17B22), Color(0xFFFFF1DF))
+        DashboardItem("ثبت ملک", Icons.Default.HomeWork, Color(0xFF1768AC), Color(0xFFE8F3FF)),
+        DashboardItem("فروش ملک", Icons.Default.Sell, Color(0xFF21845A), Color(0xFFE7F7EF)),
+        DashboardItem("درخواست کرایه", Icons.Default.Search, Color(0xFF8056B3), Color(0xFFF1EAFE)),
+        DashboardItem("ملک برای کرایه", Icons.Default.Key, Color(0xFFD17B22), Color(0xFFFFF1DF))
     )
 
     Scaffold(containerColor = Background) { innerPadding ->
@@ -276,7 +275,7 @@ private fun DashboardMenuCard(
 ) {
     Card(
         onClick = onClick,
-        modifier = modifier.height(174.dp),
+        modifier = modifier.height(126.dp),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -285,12 +284,13 @@ private fun DashboardMenuCard(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(15.dp),
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Surface(
                 shape = RoundedCornerShape(15.dp),
                 color = item.pale,
-                modifier = Modifier.size(53.dp)
+                modifier = Modifier.size(48.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
@@ -301,23 +301,14 @@ private fun DashboardMenuCard(
                     )
                 }
             }
-            Column {
-                Text(
-                    text = item.title,
-                    color = TextDark,
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Start
-                )
-                Spacer(modifier = Modifier.height(5.dp))
-                Text(
-                    text = item.description,
-                    color = TextMuted,
-                    fontSize = 12.sp,
-                    lineHeight = 18.sp,
-                    textAlign = TextAlign.Start
-                )
-            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = item.title,
+                color = TextDark,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
         }
     }
 }
