@@ -313,6 +313,7 @@ private fun PropertyRegistrationPage(onBack: () -> Unit) {
     var saleType by rememberSaveable { mutableStateOf("فروش قطعی") }
     var propertyType by rememberSaveable { mutableStateOf("خانه") }
     var address by rememberSaveable { mutableStateOf("") }
+    var price by rememberSaveable { mutableStateOf("") }
     var documentType by rememberSaveable { mutableStateOf("") }
     var ownerCount by rememberSaveable { mutableStateOf("۱") }
     var hasProblem by rememberSaveable { mutableStateOf(false) }
@@ -341,6 +342,7 @@ private fun PropertyRegistrationPage(onBack: () -> Unit) {
             Text("نوع ملک", color = AppBlue, fontWeight = FontWeight.Bold)
             ChoiceChips(listOf("خانه", "آپارتمان", "مارکیت", "زمین"), propertyType) { propertyType = it }
             OutlinedTextField(address, { address = it }, label = { Text("آدرس مکمل ملک *") }, placeholder = { Text("ولایت، ناحیه، کوچه و نشانی دقیق") }, modifier = Modifier.fillMaxWidth(), minLines = 2)
+            OutlinedTextField(price, { price = it.filter { ch -> ch.isDigit() || ch == ',' || ch == '٬' } }, label = { Text("قیمت پیشنهادی ملک *") }, placeholder = { Text("مبلغ به افغانی یا واحد توافق‌شده") }, modifier = Modifier.fillMaxWidth(), singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text))
             OutlinedTextField(documentType, { documentType = it }, label = { Text("نوع اسناد ملک *") }, placeholder = { Text("مثلاً قباله شرعی، سند رسمی، عرفی") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             OutlinedTextField(ownerCount, { ownerCount = it.filter { ch -> ch.isDigit() } }, label = { Text("تعداد مالکین *") }, modifier = Modifier.fillMaxWidth(), singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text))
             Text("آیا ملک مشکل یا محدودیت حقوقی دارد؟", color = AppBlue, fontWeight = FontWeight.Bold)
@@ -355,10 +357,12 @@ private fun PropertyRegistrationPage(onBack: () -> Unit) {
             Button(
                 onClick = {
                     val count = digits(ownerCount).toIntOrNull()
+                    val parsedPrice = digits(price.replace(",", "").replace("٬", "")).toLongOrNull()
                     when {
                         ownerName.isBlank() -> error = "لطفاً نام مالک را وارد کنید."
                         ownerPhone.isBlank() -> error = "لطفاً شماره تماس مالک را وارد کنید."
                         address.isBlank() -> error = "لطفاً آدرس ملک را وارد کنید."
+                        parsedPrice == null || parsedPrice <= 0L -> error = "لطفاً قیمت معتبر ملک را وارد کنید."
                         documentType.isBlank() -> error = "لطفاً نوع اسناد را مشخص کنید."
                         count == null || count < 1 -> error = "تعداد مالکین باید حداقل ۱ باشد."
                         hasProblem && problemDetails.isBlank() -> error = "لطفاً مشکل ملک را توضیح دهید."
@@ -375,7 +379,7 @@ private fun PropertyRegistrationPage(onBack: () -> Unit) {
                                             listingType = saleType,
                                             province = "",
                                             address = address.trim(),
-                                            price = 0L,
+                                            price = parsedPrice,
                                             currency = "AFN",
                                             description = "نام مالک: " + ownerName.trim() +
                                                 "\nشماره تماس مالک: " + ownerPhone.trim() +
