@@ -182,17 +182,32 @@ private fun RealEstateDashboard() {
             )
             Spacer(modifier = Modifier.height(13.dp))
 
-            androidx.compose.foundation.layout.FlowRow(
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                maxItemsInEachRow = 3,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                items.forEach { item ->
+                items.take(3).forEach { item ->
                     DashboardMenuCard(
-                        item,
-                        Modifier.weight(1f)
+                        item = item,
+                        modifier = Modifier.weight(1f)
                     ) { selectedItem = item.title }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items.drop(3).forEach { item ->
+                    DashboardMenuCard(
+                        item = item,
+                        modifier = Modifier.weight(1f)
+                    ) { selectedItem = item.title }
+                }
+                repeat(2) {
+                    Spacer(modifier = Modifier.weight(1f))
                 }
             }
 
