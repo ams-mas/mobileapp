@@ -107,6 +107,14 @@ private data class DashboardItem(
 private fun RealEstateDashboard() {
     var selectedItem by rememberSaveable { mutableStateOf<String?>(null) }
 
+    if (selectedItem != null) {
+        val title = selectedItem ?: ""
+        if (title == "ثبت ملک" || title == "فروش ملک") {
+            PropertyRegistrationPage(onBack = { selectedItem = null })
+        } else {
+            SimpleSectionPage(title = title, onBack = { selectedItem = null })
+        }
+    } else {
     val items = listOf(
         DashboardItem("ثبت ملک", Icons.Default.HomeWork, Color(0xFF1768AC), Color(0xFFE8F3FF)),
         DashboardItem("فروش ملک", Icons.Default.Sell, Color(0xFF21845A), Color(0xFFE7F7EF)),
@@ -268,30 +276,138 @@ private fun RealEstateDashboard() {
         }
     }
 
-    selectedItem?.let { title ->
-        if (title == "ثبت ملک") {
-            PropertyRegistrationDialog(onDismiss = { selectedItem = null })
-        } else {
-            AlertDialog(
-                onDismissRequest = { selectedItem = null },
-                title = { Text(text = title, textAlign = TextAlign.Start) },
-                text = {
-                    Text(
-                        text = "صفحه این بخش در مرحله بعدی ساخته می‌شود.",
-                        textAlign = TextAlign.Start,
-                        lineHeight = 25.sp
-                    )
-                },
-                confirmButton = {
-                    TextButton(onClick = { selectedItem = null }) {
-                        Text("متوجه شدم")
-                    }
-                },
-                containerColor = Color.White
+
+    }
+}
+
+@Composable
+private fun SimpleSectionPage(title: String, onBack: () -> Unit) {
+    Scaffold(containerColor = Background) { padding ->
+        Column(Modifier.fillMaxSize().padding(padding).padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            TextButton(onClick = onBack) { Text("← بازگشت به صفحه اصلی") }
+            Text(title, color = DeepBlue, fontSize = 25.sp, fontWeight = FontWeight.Bold)
+            Text("این صفحه در مرحله بعدی تکمیل می‌شود.", color = TextMuted)
+        }
+    }
+}
+
+@Composable
+private fun ChoiceChips(options: List<String>, selected: String, onSelect: (String) -> Unit) {
+    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        options.forEach { option ->
+            androidx.compose.material3.FilterChip(
+                selected = option == selected,
+                onClick = { onSelect(option) },
+                label = { Text(option) }
             )
         }
     }
 }
+
+@Composable
+private fun PropertyRegistrationPage(onBack: () -> Unit) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var ownerName by rememberSaveable { mutableStateOf("") }
+    var ownerPhone by rememberSaveable { mutableStateOf("") }
+    var saleType by rememberSaveable { mutableStateOf("فروش قطعی") }
+    var propertyType by rememberSaveable { mutableStateOf("خانه") }
+    var address by rememberSaveable { mutableStateOf("") }
+    var documentType by rememberSaveable { mutableStateOf("") }
+    var ownerCount by rememberSaveable { mutableStateOf("۱") }
+    var hasProblem by rememberSaveable { mutableStateOf(false) }
+    var problemDetails by rememberSaveable { mutableStateOf("") }
+    var saving by rememberSaveable { mutableStateOf(false) }
+    var error by rememberSaveable { mutableStateOf<String?>(null) }
+
+    fun digits(value: String) = value
+        .replace('۰', '0').replace('۱', '1').replace('۲', '2').replace('۳', '3').replace('۴', '4')
+        .replace('۵', '5').replace('۶', '6').replace('۷', '7').replace('۸', '8').replace('۹', '9')
+        .replace('٠', '0').replace('١', '1').replace('٢', '2').replace('٣', '3').replace('٤', '4')
+        .replace('٥', '5').replace('٦', '6').replace('٧', '7').replace('٨', '8').replace('٩', '9')
+
+    Scaffold(containerColor = Background) { padding ->
+        Column(
+            modifier = Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            TextButton(onClick = onBack, enabled = !saving) { Text("← بازگشت به صفحه اصلی") }
+            Text("ثبت ملک برای فروش", color = DeepBlue, fontSize = 25.sp, fontWeight = FontWeight.Bold)
+            Text("مشخصات مالک", color = AppBlue, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            OutlinedTextField(ownerName, { ownerName = it }, label = { Text("نام مالک *") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            OutlinedTextField(ownerPhone, { ownerPhone = it }, label = { Text("شماره تماس مالک *") }, placeholder = { Text("+93 یا شماره محلی") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            Text("نوع فروش", color = AppBlue, fontWeight = FontWeight.Bold)
+            ChoiceChips(listOf("فروش قطعی", "گروی", "معاوضه"), saleType) { saleType = it }
+            Text("نوع ملک", color = AppBlue, fontWeight = FontWeight.Bold)
+            ChoiceChips(listOf("خانه", "آپارتمان", "مارکیت", "زمین"), propertyType) { propertyType = it }
+            OutlinedTextField(address, { address = it }, label = { Text("آدرس مکمل ملک *") }, placeholder = { Text("ولایت، ناحیه، کوچه و نشانی دقیق") }, modifier = Modifier.fillMaxWidth(), minLines = 2)
+            OutlinedTextField(documentType, { documentType = it }, label = { Text("نوع اسناد ملک *") }, placeholder = { Text("مثلاً قباله شرعی، سند رسمی، عرفی") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+            OutlinedTextField(ownerCount, { ownerCount = it.filter { ch -> ch.isDigit() } }, label = { Text("تعداد مالکین *") }, modifier = Modifier.fillMaxWidth(), singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text))
+            Text("آیا ملک مشکل یا محدودیت حقوقی دارد؟", color = AppBlue, fontWeight = FontWeight.Bold)
+            ChoiceChips(listOf("نخیر", "بلی"), if (hasProblem) "بلی" else "نخیر") {
+                hasProblem = it == "بلی"
+                if (!hasProblem) problemDetails = ""
+            }
+            if (hasProblem) {
+                OutlinedTextField(problemDetails, { problemDetails = it }, label = { Text("شرح مشکل *") }, placeholder = { Text("مشکل یا محدودیت را توضیح دهید") }, modifier = Modifier.fillMaxWidth(), minLines = 3)
+            }
+            error?.let { Text(it, color = Color(0xFFB3261E)) }
+            Button(
+                onClick = {
+                    val count = digits(ownerCount).toIntOrNull()
+                    when {
+                        ownerName.isBlank() -> error = "لطفاً نام مالک را وارد کنید."
+                        ownerPhone.isBlank() -> error = "لطفاً شماره تماس مالک را وارد کنید."
+                        address.isBlank() -> error = "لطفاً آدرس ملک را وارد کنید."
+                        documentType.isBlank() -> error = "لطفاً نوع اسناد را مشخص کنید."
+                        count == null || count < 1 -> error = "تعداد مالکین باید حداقل ۱ باشد."
+                        hasProblem && problemDetails.isBlank() -> error = "لطفاً مشکل ملک را توضیح دهید."
+                        else -> {
+                            error = null
+                            saving = true
+                            scope.launch {
+                                try {
+                                    val app = context.applicationContext as RealEstateApplication
+                                    app.localDatabase.propertyDao().upsert(
+                                        PropertyEntity(
+                                            title = propertyType + " - " + ownerName.trim(),
+                                            propertyType = propertyType,
+                                            listingType = saleType,
+                                            province = "",
+                                            address = address.trim(),
+                                            price = 0L,
+                                            currency = "AFN",
+                                            description = "نام مالک: " + ownerName.trim() +
+                                                "\nشماره تماس مالک: " + ownerPhone.trim() +
+                                                "\nنوع اسناد: " + documentType.trim() +
+                                                "\nتعداد مالکین: " + count +
+                                                "\nمشکل حقوقی: " + if (hasProblem) "بلی" else "نخیر" +
+                                                if (hasProblem) "\nشرح مشکل: " + problemDetails.trim() else "",
+                                            status = "available",
+                                            syncState = "pending"
+                                        )
+                                    )
+                                    Toast.makeText(context, "اطلاعات ملک در همین دستگاه ذخیره شد.", Toast.LENGTH_LONG).show()
+                                    onBack()
+                                } catch (e: Exception) {
+                                    saving = false
+                                    error = "ذخیره اطلاعات انجام نشد. لطفاً دوباره تلاش کنید."
+                                }
+                            }
+                        }
+                    }
+                },
+                enabled = !saving,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (saving) CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                Text(if (saving) "در حال ذخیره..." else "ذخیره ملک")
+            }
+            Text("کد ملک بعداً توسط سرور ساخته می‌شود.", color = TextMuted, fontSize = 12.sp)
+        }
+    }
+}
+
 
 @Composable
 private fun PropertyRegistrationDialog(onDismiss: () -> Unit) {
